@@ -50,54 +50,107 @@ function renderAssets() {
       </div>
 
       <div class="toolbar">
-        <input type="text" placeholder="Search asset code, name, serial number...">
-        <select>
-          <option>All Status</option>
-          <option>Available</option>
-          <option>In Use</option>
-          <option>Repair</option>
+        <input id="assetSearch" type="text" placeholder="Search asset code, name, serial number...">
+        <select id="assetStatusFilter">
+          <option value="">All Status</option>
+          <option value="IN_USE">In Use</option>
+          <option value="AVAILABLE">Available</option>
+          <option value="REPAIR">Repair</option>
+          <option value="DISPOSED">Disposed</option>
         </select>
       </div>
 
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Asset Code</th>
-            <th>Name</th>
-            <th>Category</th>
-            <th>Owner</th>
-            <th>Status</th>
-            <th>Location</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>IT-NB-0001</td>
-            <td>Dell Latitude 5420</td>
-            <td>Notebook</td>
-            <td>Somchai</td>
-            <td><span class="status green">In Use</span></td>
-            <td>HQ / IT Room</td>
-          </tr>
-          <tr>
-            <td>IT-PR-0001</td>
-            <td>HP LaserJet Pro</td>
-            <td>Printer</td>
-            <td>-</td>
-            <td><span class="status blue">Available</span></td>
-            <td>HQ / Floor 2</td>
-          </tr>
-          <tr>
-            <td>IT-PC-0008</td>
-            <td>Lenovo ThinkCentre</td>
-            <td>Computer</td>
-            <td>Wanwisa</td>
-            <td><span class="status orange">Repair</span></td>
-            <td>Service Desk</td>
-          </tr>
-        </tbody>
-      </table>
+      <div id="assetTableContainer">
+        <p>Loading assets...</p>
+      </div>
     </section>
+  `;
+
+  google.script.run
+    .withSuccessHandler(function(assets) {
+      window.assetData = assets || [];
+      renderAssetTable(window.assetData);
+
+      document.getElementById('assetSearch').addEventListener('input', filterAssets);
+      document.getElementById('assetStatusFilter').addEventListener('change', filterAssets);
+    })
+    .withFailureHandler(function(error) {
+      document.getElementById('assetTableContainer').innerHTML = `
+        <div class="empty-state">
+          <h3>Load Assets Failed</h3>
+          <p>${error.message}</p>
+        </div>
+      `;
+    })
+    .getAssets();
+}
+
+function filterAssets() {
+  const keyword = document.getElementById('assetSearch').value.toLowerCase();
+  const status = document.getElementById('assetStatusFilter').value;
+
+  const filtered = window.assetData.filter(function(asset) {
+    const text = [
+      asset.asset_code,
+      asset.asset_name,
+      asset.model,
+      asset.serial_number,
+      asset.owner_user_id,
+      asset.location_id,
+      asset.status_id
+    ].join(' ').toLowerCase();
+
+    const matchKeyword = text.includes(keyword);
+    const matchStatus = !status || asset.status_id === status;
+
+    return matchKeyword && matchStatus;
+  });
+
+  renderAssetTable(filtered);
+}
+
+function renderAssetTable(assets) {
+  const container = document.getElementById('assetTableContainer');
+
+  if (!assets || assets.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <h3>No Assets Found</h3>
+        <p>ยังไม่มีข้อมูลทรัพย์สิน หรือไม่พบข้อมูลจากการค้นหา</p>
+      </div>
+    `;
+    return;
+  }
+
+  const rows = assets.map(function(asset) {
+    return `
+      <tr>
+        <td>${asset.asset_code}</td>
+        <td>${asset.asset_name}</td>
+        <td>${asset.category_id}</td>
+        <td>${asset.owner_user_id}</td>
+        <td><span class="status blue">${asset.status_id}</span></td>
+        <td>${asset.location_id}</td>
+      </tr>
+    `;
+  }).join('');
+
+  container.innerHTML = `
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Asset Code</th>
+          <th>Name</th>
+          <th>Category</th>
+          <th>Owner</th>
+          <th>Status</th>
+          <th>Location</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows}
+      </tbody>
+    </table>
   `;
 }
 
