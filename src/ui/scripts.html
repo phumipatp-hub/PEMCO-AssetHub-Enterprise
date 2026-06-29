@@ -1,5 +1,74 @@
 ﻿<script>
-  function loadDashboard() {
+  const pages = {
+    dashboard: {
+      title: 'Dashboard',
+      subtitle: 'ภาพรวมระบบบริหารจัดการ IT ขององค์กร',
+      render: renderDashboard
+    },
+    assets: {
+      title: 'Assets',
+      subtitle: 'จัดการข้อมูลทรัพย์สิน IT ทั้งหมด',
+      render: renderAssets
+    },
+    helpdesk: {
+      title: 'Helpdesk',
+      subtitle: 'จัดการงานแจ้งซ่อมและคำร้องขอ IT',
+      render: renderComingSoon
+    },
+    licenses: {
+      title: 'Licenses',
+      subtitle: 'จัดการ License และวันหมดอายุ',
+      render: renderComingSoon
+    },
+    documents: {
+      title: 'Documents',
+      subtitle: 'จัดเก็บเอกสาร สัญญา และไฟล์อ้างอิง',
+      render: renderComingSoon
+    },
+    settings: {
+      title: 'Settings',
+      subtitle: 'ตั้งค่าระบบและข้อมูลพื้นฐาน',
+      render: renderComingSoon
+    }
+  };
+
+  function setPage(pageName) {
+    const page = pages[pageName] || pages.dashboard;
+
+    document.getElementById('pageTitle').textContent = page.title;
+    document.getElementById('pageSubtitle').textContent = page.subtitle;
+
+    document.querySelectorAll('.nav-link').forEach(function(link) {
+      link.classList.toggle('active', link.dataset.page === pageName);
+    });
+
+    page.render();
+  }
+
+  function renderDashboard() {
+    const content = document.getElementById('pageContent');
+
+    content.innerHTML = 
+      <section class="cards">
+        <div class="card"><p>Total Assets</p><h3 id="totalAssets">-</h3></div>
+        <div class="card"><p>Available</p><h3 id="availableAssets">-</h3></div>
+        <div class="card"><p>Repair</p><h3 id="repairAssets">-</h3></div>
+        <div class="card"><p>Open Tickets</p><h3 id="openTickets">-</h3></div>
+        <div class="card"><p>Licenses Expiring</p><h3 id="expiringLicenses">-</h3></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h3>Quick Actions</h3>
+        </div>
+        <div class="quick-actions">
+          <button onclick="setPage('assets')">+ Add Asset</button>
+          <button onclick="setPage('helpdesk')">+ New Ticket</button>
+          <button onclick="setPage('licenses')">+ Add License</button>
+        </div>
+      </section>
+    ;
+
     google.script.run
       .withSuccessHandler(function(data) {
         document.getElementById('totalAssets').textContent = data.totalAssets;
@@ -11,5 +80,86 @@
       .getDashboardSummary();
   }
 
-  document.addEventListener('DOMContentLoaded', loadDashboard);
+  function renderAssets() {
+    const content = document.getElementById('pageContent');
+
+    content.innerHTML = 
+      <section class="panel">
+        <div class="panel-header">
+          <h3>Asset List</h3>
+          <button class="primary-button">+ Add Asset</button>
+        </div>
+
+        <div class="toolbar">
+          <input type="text" placeholder="Search asset code, name, serial number...">
+          <select>
+            <option>All Status</option>
+            <option>Available</option>
+            <option>In Use</option>
+            <option>Repair</option>
+          </select>
+        </div>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Asset Code</th>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Owner</th>
+              <th>Status</th>
+              <th>Location</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>IT-NB-0001</td>
+              <td>Dell Latitude 5420</td>
+              <td>Notebook</td>
+              <td>Somchai</td>
+              <td><span class="status green">In Use</span></td>
+              <td>HQ / IT Room</td>
+            </tr>
+            <tr>
+              <td>IT-PR-0001</td>
+              <td>HP LaserJet Pro</td>
+              <td>Printer</td>
+              <td>-</td>
+              <td><span class="status blue">Available</span></td>
+              <td>HQ / Floor 2</td>
+            </tr>
+            <tr>
+              <td>IT-PC-0008</td>
+              <td>Lenovo ThinkCentre</td>
+              <td>Computer</td>
+              <td>Wanwisa</td>
+              <td><span class="status orange">Repair</span></td>
+              <td>Service Desk</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    ;
+  }
+
+  function renderComingSoon() {
+    const content = document.getElementById('pageContent');
+
+    content.innerHTML = 
+      <section class="empty-state">
+        <h3>Coming Soon</h3>
+        <p>หน้านี้จะถูกพัฒนาต่อใน Sprint ถัดไป</p>
+      </section>
+    ;
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.nav-link').forEach(function(link) {
+      link.addEventListener('click', function() {
+        setPage(link.dataset.page);
+      });
+    });
+
+    setPage('dashboard');
+  });
 </script>

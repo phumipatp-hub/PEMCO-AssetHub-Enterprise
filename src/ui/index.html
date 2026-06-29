@@ -18,46 +18,25 @@
       </div>
 
       <nav>
-        <a class="active">Dashboard</a>
-        <a>Assets</a>
-        <a>Helpdesk</a>
-        <a>Licenses</a>
-        <a>Documents</a>
-        <a>Settings</a>
+        <a class="nav-link active" data-page="dashboard">Dashboard</a>
+        <a class="nav-link" data-page="assets">Assets</a>
+        <a class="nav-link" data-page="helpdesk">Helpdesk</a>
+        <a class="nav-link" data-page="licenses">Licenses</a>
+        <a class="nav-link" data-page="documents">Documents</a>
+        <a class="nav-link" data-page="settings">Settings</a>
       </nav>
     </aside>
 
     <main class="main">
       <header class="topbar">
         <div>
-          <h2>Dashboard</h2>
-          <p>ภาพรวมระบบบริหารจัดการ IT ขององค์กร</p>
+          <h2 id="pageTitle">Dashboard</h2>
+          <p id="pageSubtitle">ภาพรวมระบบบริหารจัดการ IT ขององค์กร</p>
         </div>
         <div class="user-badge">Admin</div>
       </header>
 
-      <section class="cards">
-        <div class="card">
-          <p>Total Assets</p>
-          <h3 id="totalAssets">-</h3>
-        </div>
-        <div class="card">
-          <p>Available</p>
-          <h3 id="availableAssets">-</h3>
-        </div>
-        <div class="card">
-          <p>Repair</p>
-          <h3 id="repairAssets">-</h3>
-        </div>
-        <div class="card">
-          <p>Open Tickets</p>
-          <h3 id="openTickets">-</h3>
-        </div>
-        <div class="card">
-          <p>Licenses Expiring</p>
-          <h3 id="expiringLicenses">-</h3>
-        </div>
-      </section>
+      <section id="pageContent"></section>
     </main>
   </div>
 
