@@ -9,13 +9,3 @@
 function include(filename) {
   return HtmlService.createHtmlOutputFromFile(filename).getContent();
 }
-
-function getDashboardSummary() {
-  return {
-    totalAssets: 245,
-    availableAssets: 32,
-    repairAssets: 5,
-    openTickets: 12,
-    expiringLicenses: 3
-  };
-}
